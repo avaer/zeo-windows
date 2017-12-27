@@ -19,6 +19,28 @@ if (url) {
       ipcMain.on('ipc', (event, e) => {
         const {method} = e;
         switch (method) {
+          case 'move': {
+            const {args: [dx, dy]} = e;
+            const [oldX, oldY] = win.getPosition();
+            win.setPosition(oldX + dx, oldY + dy);
+            break;
+          }
+          case 'minimize': {
+            win.minimize();
+            break;
+          }
+          case 'maximize': {
+            win.maximize();
+            break;
+          }
+          case 'restore': {
+            win.restore();
+            break;
+          }
+          case 'close': {
+            win.close();
+            break;
+          }
           case 'show': {
             win.show();
             break;
@@ -37,8 +59,9 @@ if (url) {
       const win = new BrowserWindow({
         width: 1280,
         height: 1024,
-        show: false,
+        // show: false,
         icon: path.join(__dirname, 'icon.png'),
+        frame: false,
         backgroundThrottling: false,
         autoHideMenuBar: true,
         webPreferences: {
