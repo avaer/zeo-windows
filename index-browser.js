@@ -1,10 +1,14 @@
 const path = require('path');
 const http = require('http');
-const {app, ipcMain, BrowserWindow} = require('electron');
+const electron = require('electron');
+const {app, ipcMain, BrowserWindow} = electron;
 
 const url = process.argv[2];
 
 if (url) {
+  app.commandLine.appendSwitch('high-dpi-support', 'true');
+  app.commandLine.appendSwitch('force-device-scale-factor', '1');
+
   const _requestAppReady = () => new Promise((accept, reject) => {
     app.on('ready', () => {
       accept();
@@ -16,12 +20,19 @@ if (url) {
 
   _requestAppReady()
     .then(() => {
+      let oldX = 0;
+      let oldY = 0;
       ipcMain.on('ipc', (event, e) => {
         const {method} = e;
         switch (method) {
+          case 'startMove': {
+            const position = win.getPosition();
+            oldX = position[0];
+            oldY = position[1];
+            break;
+          }
           case 'move': {
             const {args: [dx, dy]} = e;
-            const [oldX, oldY] = win.getPosition();
             win.setPosition(oldX + dx, oldY + dy);
             break;
           }
@@ -31,6 +42,10 @@ if (url) {
           }
           case 'maximize': {
             win.maximize();
+            break;
+          }
+          case 'unmaximize': {
+            win.unmaximize();
             break;
           }
           case 'restore': {
@@ -55,23 +70,39 @@ if (url) {
           }
         }
       });
-      
+
+      const zoomFactor = 1.5;
       const win = new BrowserWindow({
-        width: 1280,
-        height: 1024,
+        width: 1280 * zoomFactor,
+        height: 1024 * zoomFactor,
         // show: false,
         icon: path.join(__dirname, 'icon.png'),
         frame: false,
-        backgroundThrottling: false,
+        titleBarStyle: 'hidden',
         autoHideMenuBar: true,
+        // thickFrame: false,
+        backgroundThrottling: false,
+        // darkTheme: true,
         webPreferences: {
           preload: path.join(__dirname, 'api.js'),
+          zoomFactor,
           // webSecurity: false,
         },
       });
       win.loadURL(url);
+      win.on('maximize', () => {
+        win.webContents.send('ipc', {
+          method: 'maximize',
+        });
+      });
+      win.on('unmaximize', () => {
+        win.webContents.send('ipc', {
+          method: 'unmaximize',
+        });
+      });
       win.webContents.openDevTools({
-        mode: 'detach',
+        mode: 'bottom',
+        // mode: 'detach',
       });
       win.webContents.on('did-fail-load', () => {
         process.exit(1);

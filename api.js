@@ -12,28 +12,39 @@ const openvr = require('node-openvr');
 const DEFAULT_USER_HEIGHT = 1.6;
 
 window.native = {
-  move: (dx, dy) => {
+  ipc: ipcRenderer,
+  startMove(dx, dy) {
+    ipcRenderer.send('ipc', {
+      method: 'startMove',
+    });
+  },
+  move(dx, dy) {
     ipcRenderer.send('ipc', {
       method: 'move',
       args: [dx, dy],
     });
   },
-  minimize: () => {
+  minimize() {
     ipcRenderer.send('ipc', {
       method: 'minimize',
     });
   },
-  maximize: () => {
+  maximize() {
     ipcRenderer.send('ipc', {
       method: 'maximize',
     });
   },
-  restore: () => {
+  unmaximize() {
+    ipcRenderer.send('ipc', {
+      method: 'unmaximize',
+    });
+  },
+  restore() {
     ipcRenderer.send('ipc', {
       method: 'restore',
     });
   },
-  close: () => {
+  close() {
     ipcRenderer.send('ipc', {
       method: 'close',
     });
