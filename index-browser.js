@@ -38,6 +38,7 @@ if (url) {
         width: 1280,
         height: 1024,
         show: false,
+        icon: path.join(__dirname, 'icon.png'),
         backgroundThrottling: false,
         autoHideMenuBar: true,
         webPreferences: {
