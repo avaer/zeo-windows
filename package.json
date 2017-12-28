@@ -21,7 +21,6 @@
   },
   "homepage": "https://github.com/modulesio/node-webvr#readme",
   "dependencies": {
-    "7zip": "0.0.6",
     "electron": "^1.7.10",
     "follow-redirects": "^1.2.6",
     "jimp": "^0.2.28",

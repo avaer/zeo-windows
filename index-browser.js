@@ -8,7 +8,6 @@ const childProcess = require('child_process');
 const mkdirp = require('mkdirp');
 const touch = require('touch');
 const tar = require('tar');
-const _7z = require('7zip')['7z'];
 const electron = require('electron');
 const {app, ipcMain, BrowserWindow} = electron;
 
@@ -106,7 +105,7 @@ if (url) {
 
                         win.webContents.send('ipc', {
                           method: 'progress',
-                          args: [id, bytesRead/2/contentLength],
+                          args: [id, bytesRead/contentLength],
                         });
                       });
                       ws.on('finish', () => {
@@ -137,97 +136,8 @@ if (url) {
                   }
                 });
               }));
-            const _downloadNode = () => new Promise((accept, reject) => {
-              const bs = [];
-              const proxyReq = https.get({
-                host: 'render.zeovr.io',
-                path: `/node.json`,
-              }, proxyRes => {
-                if (proxyRes.statusCode >= 200 && proxyRes.statusCode < 300) {
-                  proxyRes.on('data', d => {
-                    bs.push(d);
-                  });
-                  proxyRes.on('end', () => {
-                    const b = Buffer.concat(bs);
-                    const s = b.toString('utf8');
-                    const j = JSON.parse(s);
-                    const {version} = j;
-                    accept(version);
-                  });
-                  proxyRes.on('error', reject);
-                } else {
-                  reject(new Error('download node got invalid status code: ' + proxyRes.statusCode));
-                }
-              });
-              proxyReq.on('error', reject);
-            })
-              .then(nodeVersion => {
-                return new Promise((accept, reject) => {
-                  mkdirp(path.join(dirname, 'downloads'), err => {
-                    if (!err) {
-                      const proxyReq = https.get({
-                        host: 'nodejs.org',
-                        path: `/dist/v${nodeVersion}/node-v${nodeVersion}-win-x64.7z`,
-                      }, proxyRes => {
-                        if (proxyRes.statusCode >= 200 && proxyRes.statusCode < 300) {
-                          const contentLength = parseInt(proxyRes.headers['content-length'], 10);
-                          const ws = fs.createWriteStream(path.join(dirname, 'downloads', 'node.7z'));
-                          proxyRes.on('error', reject);
-                          ws.on('error', reject);
-
-                          proxyRes.pipe(ws);
-                          let bytesRead = 0;
-                          proxyRes.on('data', d => {
-                            bytesRead += d.length;
-
-                            win.webContents.send('ipc', {
-                              method: 'progress',
-                              args: [id, 0.5 + bytesRead/2/contentLength],
-                            });
-                          });
-                          ws.on('finish', () => {
-                            accept();
-                          });
-                        } else {
-                          reject(new Error('download node got invalid status code: ' + proxyRes.statusCode));
-                        }
-                      });
-                      proxyReq.on('error', reject);
-                    } else {
-                      reject(err);
-                    }
-                  });
-                })
-                .then(() => new Promise((accept, reject) => {
-                  const cp = childProcess.spawn(_7z, ['x', path.join(dirname, 'downloads', 'node.7z')], {
-                    cwd: path.join(dirname, 'downloads'),
-                  });
-
-                  cp.on('error', reject);
-                  cp.on('close', code => {
-                    if (code === 0) {
-                      accept();
-                    } else {
-                      reject(new Error('7z returned nonzero exit code: ' + code));
-                    }
-                  });
-
-                  // cp.stderr.pipe(process.stderr);
-                }))
-                .then(() => new Promise((accept, reject) => {
-                  fs.rename(path.join(dirname, 'downloads', `node-v${nodeVersion}-win-x64`), path.join(dirname, 'node'), err => {
-                    if (!err) {
-                      accept();
-                    } else {
-                      reject(err);
-                    }
-                  });
-                }));
-              });
             const _startServer = () => {
-              console.log('start server', ['powershell.exe', '-NonInteractive', '-Command', `Start-Process -NoNewWindow -RedirectStandardOutput out-log.txt -RedirectStandardError err-log.txt -FilePath ./node/node.exe -ArgumentList "index.js","noTty"`], dirname);
-
-              const cp = childProcess.spawn('powershell.exe', ['-NonInteractive', '-Command', `Start-Process -NoNewWindow -RedirectStandardOutput out-log.txt -RedirectStandardError err-log.txt -FilePath ./node/node.exe -ArgumentList "index.js","noTty"`], {
+              const cp = childProcess.spawn('powershell.exe', ['-NonInteractive', '-Command', `Start-Process -NoNewWindow -RedirectStandardOutput out-log.txt -RedirectStandardError err-log.txt -FilePath ./windows/node/node.exe -ArgumentList "index.js","noTty"`], {
                 cwd: dirname,
                 // detached: true,
                 // stdio: 'ignore'
@@ -244,7 +154,6 @@ if (url) {
             fs.lstat(dirname, err => {
               if (err && err.code === 'ENOENT') {
                 _downloadRelease()
-                  .then(() => _downloadNode())
                   .then(() => _startServer())
                   .then(() => {
                     const serverSpec = {
