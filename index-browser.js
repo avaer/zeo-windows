@@ -12,7 +12,6 @@ const electron = require('electron');
 const {app, ipcMain, BrowserWindow} = electron;
 
 const url = process.argv[2];
-const nodeVersion = '8.9.3';
 
 if (url) {
   app.commandLine.appendSwitch('high-dpi-support', 'true');
