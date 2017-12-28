@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const {ipcRenderer} = require('electron');
-const THREE = require('./lib/three-min.js');
+const THREE = require('./lib/three/three-min.js');
 const jimp = require('jimp');
 const webgl = require('node-webgl2');
 const openvr = require('node-openvr');
