@@ -21,9 +21,14 @@
   },
   "homepage": "https://github.com/modulesio/node-webvr#readme",
   "dependencies": {
+    "7zip": "0.0.6",
     "electron": "^1.7.10",
+    "follow-redirects": "^1.2.6",
     "jimp": "^0.2.28",
-    "node-openvr": "0.0.53"
+    "mkdirp": "^0.5.1",
+    "node-openvr": "0.0.53",
+    "tar": "^4.2.0",
+    "touch": "^3.1.0"
   },
   "devDependencies": {
     "controllerjs": "0.0.3",

@@ -11,6 +11,9 @@ const openvr = require('node-openvr');
 
 const DEFAULT_USER_HEIGHT = 1.6;
 
+const _makeId = () => Math.random().toString(36).substring(7);
+const responses = {};
+
 window.native = {
   ipc: ipcRenderer,
   startMove(dx, dy) {
@@ -49,7 +52,51 @@ window.native = {
       method: 'close',
     });
   },
+  createLocalServer({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'createLocalServer',
+      args: [id, name],
+    });
+
+    let _accept, _reject;
+    const result = new Promise((accept, reject) => {
+      _accept = accept;
+      _reject = reject;
+    });
+    result.accept = d => {
+      _accept(d);
+    };
+    result.reject = err => {
+      _reject(err);
+    };
+    result.onprogress = null;
+
+    responses[id] = result;
+
+    return result;
+  }
 };
+ipcRenderer.on('ipc', (event, e) => {
+  const {method} = e;
+  if (method === 'progress') {
+    const {args: [id, progress]} = e;
+    const response = responses[id];
+    if (response.onprogress) {
+      response.onprogress(progress);
+    }
+  } else if (method === 'response') {
+    const {args: [id, err, result]} = e;
+    const response = responses[id];
+    if (!err) {
+      response.accept(result);
+    } else {
+      response.reject(err);
+    }
+    responses[id] = null; // XXX can be delete
+  }
+});
 
 const platform = webgl.document();
 platform.on('quit', () => {
