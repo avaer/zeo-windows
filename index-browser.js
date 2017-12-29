@@ -191,7 +191,7 @@ if (command === null) {
         process.exit(1);
       });
   } else {
-    console.warn('usage: run.cmd [URL]');
+    console.warn('usage: run.cmd url=[URL]');
     process.exit(1);
   }
 } else if (command === 'install') {
@@ -231,7 +231,7 @@ if (command === null) {
         process.exit(1);
       });
   } else {
-    console.warn('usage: run.cmd [URL]');
+    console.warn('usage: run.cmd install name=[NAME] port=[PORT]');
     process.exit(1);
   }
 } else {
