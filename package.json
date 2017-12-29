@@ -23,6 +23,7 @@
   "dependencies": {
     "electron": "^1.7.10",
     "follow-redirects": "^1.2.6",
+    "getport": "^0.1.0",
     "jimp": "^0.2.28",
     "mkdirp": "^0.5.1",
     "node-openvr": "0.0.53",

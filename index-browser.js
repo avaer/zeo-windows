@@ -9,7 +9,7 @@ const tar = require('tar');
 const electron = require('electron');
 const {app, ipcMain, BrowserWindow} = electron;
 
-const installLib = require('./lib/install.js');
+const serverLib = require('./lib/server.js');
 
 const command = (() => {
   for (let i = 2; i < process.argv.length; i++) {
@@ -99,7 +99,7 @@ if (command === null) {
             case 'createLocalServer': {
               const {args: [id, name]} = e;
 
-              installLib.spawnCreateLocalServer({
+              serverLib.spawnCreateLocalServer({
                 name,
               })
                 .then(serverSpec => {
@@ -188,7 +188,7 @@ if (command === null) {
     return null;
   })();
   if (name) {
-    installLib.createLocalServer({
+    serverLib.createLocalServer({
       name,
     })
       .then(serverSpec => {
