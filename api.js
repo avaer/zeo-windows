@@ -88,17 +88,60 @@ window.native = {
     const result = _makePromise();
     responses[id] = result;
     return result;
-  }
+  },
+  removeLocalServer({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'removeLocalServer',
+      args: [id, name],
+    });
+
+    const result = _makePromise();
+    responses[id] = result;
+    return result;
+  },
+  reinstallLocalServer({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'reinstallLocalServer',
+      args: [id, name],
+    });
+
+    const result = _makePromise();
+    responses[id] = result;
+    return result;
+  },
+  startServer({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'startServer',
+      args: [id, name],
+    });
+
+    const result = _makePromise();
+    responses[id] = result;
+    return result;
+  },
+  stopServer({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'stopServer',
+      args: [id, name],
+    });
+
+    const result = _makePromise();
+    responses[id] = result;
+    return result;
+  },
 };
 ipcRenderer.on('ipc', (event, e) => {
   const {method} = e;
-  if (method === 'progress') {
-    const {args: [id, progress]} = e;
-    const response = responses[id];
-    if (response.onprogress) {
-      response.onprogress(progress);
-    }
-  } else if (method === 'response') {
+
+  if (method === 'response') {
     const {args: [id, err, result]} = e;
     const response = responses[id];
     if (!err) {
@@ -107,7 +150,9 @@ ipcRenderer.on('ipc', (event, e) => {
       response.reject(err);
     }
     responses[id] = null; // XXX can be delete
-  }
+  } /* else {
+    console.warn('ipc got unknown method: ' + JSON.stringify(method));
+  } */
 });
 
 const platform = webgl.document();

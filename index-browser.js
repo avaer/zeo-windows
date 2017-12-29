@@ -147,6 +147,50 @@ if (command === null) {
                 });
               break;
             }
+            case 'removeLocalServer': {
+              const {args: [id, name]} = e;
+
+              serverLib.spawnCreateLocalServer({
+                name,
+              })
+                .then(serverSpec => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, null, serverSpec],
+                  });
+                })
+                .catch(err => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, err.stack, null],
+                  });
+                });
+              break;
+            }
+            case 'reinstallLocalServer': {
+              const {args: [id, name]} = e;
+
+              serverLib.spawnReinstallLocalServer({
+                name,
+              })
+                .then(serverSpec => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, null, serverSpec],
+                  });
+                })
+                .catch(err => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, err.stack, null],
+                  });
+                });
+              break;
+            }
+            default: {
+              console.warn('got invalid ipc method: ' + method);
+              break;
+            }
           }
         });
 
