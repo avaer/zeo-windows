@@ -6,10 +6,23 @@ const childProcess = require('child_process');
 const mkdirp = require('mkdirp');
 const touch = require('touch');
 const tar = require('tar');
+const spog = require('spog');
 const electron = require('electron');
 const {app, ipcMain, BrowserWindow} = electron;
 
-const serverLib = require('./lib/server.js');
+const log = (() => {
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    const match = arg.match(/^log=(.+)$/);
+    if (match) {
+      return match[1];
+    }
+  }
+  return null;
+})();
+const console = log !== null ? spog.createConsole(log) : global.console;
+
+const serverLib = require('./lib/server.js')({console});
 
 const command = (() => {
   for (let i = 2; i < process.argv.length; i++) {
