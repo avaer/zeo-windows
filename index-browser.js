@@ -223,12 +223,11 @@ if (command === null) {
       name,
       port,
     })
-      .then(serverSpec => {
-        console.log(JSON.stringify(serverSpec));
+      .then(() => {
         process.exit();
       })
       .catch(err => {
-        console.log(JSON.stringify({error: err.stack}));
+        console.warn(err.stack);
         process.exit(1);
       });
   } else {
