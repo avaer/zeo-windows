@@ -12,8 +12,21 @@ const openvr = require('node-openvr');
 const DEFAULT_USER_HEIGHT = 1.6;
 
 const _makeId = () => Math.random().toString(36).substring(7);
+const _makePromise = () => {
+  let _accept, _reject;
+  const result = new Promise((accept, reject) => {
+    _accept = accept;
+    _reject = reject;
+  });
+  result.accept = d => {
+    _accept(d);
+  };
+  result.reject = err => {
+    _reject(err);
+  };
+  return result;
+};
 const responses = {};
-
 window.native = {
   ipc: ipcRenderer,
   startMove(dx, dy) {
@@ -52,6 +65,18 @@ window.native = {
       method: 'close',
     });
   },
+  requestLocalServers() {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'requestLocalServers',
+      args: [id],
+    });
+
+    const result = _makePromise();
+    responses[id] = result;
+    return result;
+  },
   createLocalServer({name}) {
     const id = _makeId();
 
@@ -60,21 +85,9 @@ window.native = {
       args: [id, name],
     });
 
-    let _accept, _reject;
-    const result = new Promise((accept, reject) => {
-      _accept = accept;
-      _reject = reject;
-    });
-    result.accept = d => {
-      _accept(d);
-    };
-    result.reject = err => {
-      _reject(err);
-    };
+    const result = _makePromise();
     result.onprogress = null;
-
     responses[id] = result;
-
     return result;
   }
 };

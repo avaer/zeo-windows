@@ -96,6 +96,24 @@ if (command === null) {
               process.exit(0);
               break;
             }
+            case 'requestLocalServers': {
+              const {args: [id]} = e;
+
+              serverLib.requestLocalServers()
+                .then(serverSpecs => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, null, serverSpecs],
+                  });
+                })
+                .catch(err => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, err.stack, null],
+                  });
+                });
+              break;
+            }
             case 'createLocalServer': {
               const {args: [id, name]} = e;
 
@@ -187,9 +205,23 @@ if (command === null) {
     }
     return null;
   })();
-  if (name) {
+  const port = (() => {
+    for (let i = 2; i < process.argv.length; i++) {
+      const arg = process.argv[i];
+      const match = arg.match(/^porct=(.+)$/);
+      if (match) {
+        const port = parseInt(match[1], 10);
+        if (!isNaN(port) && isFinite(port) && port > 0) {
+          return port;
+        }
+      }
+    }
+    return null;
+  })();
+  if (name && port) {
     serverLib.createLocalServer({
       name,
+      port,
     })
       .then(serverSpec => {
         console.log(JSON.stringify(serverSpec));
