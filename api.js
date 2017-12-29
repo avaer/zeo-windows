@@ -86,7 +86,6 @@ window.native = {
     });
 
     const result = _makePromise();
-    result.onprogress = null;
     responses[id] = result;
     return result;
   }
