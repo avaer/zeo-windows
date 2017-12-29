@@ -185,6 +185,13 @@ if (command === null) {
             method: 'unmaximize',
           });
         });
+        win.on('app-command', (e, cmd) => {
+          if (cmd === 'browser-backward' && win.webContents.canGoBack()) {
+            win.webContents.goBack()
+          } else if (cmd === 'browser-forward' && win.webContents.canGoForward()) {
+            win.webContents.goForward()
+          }
+        });
         win.webContents.openDevTools({
           mode: 'bottom',
           // mode: 'detach',
