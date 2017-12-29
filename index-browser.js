@@ -208,7 +208,7 @@ if (command === null) {
   const port = (() => {
     for (let i = 2; i < process.argv.length; i++) {
       const arg = process.argv[i];
-      const match = arg.match(/^porct=(.+)$/);
+      const match = arg.match(/^port=(.+)$/);
       if (match) {
         const port = parseInt(match[1], 10);
         if (!isNaN(port) && isFinite(port) && port > 0) {
