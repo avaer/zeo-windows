@@ -151,19 +151,19 @@ if (command === null) {
             case 'removeLocalServer': {
               const {args: [id, name]} = e;
 
-              serverLib.spawnCreateLocalServer({
+              serverLib.removeLocalServer({
                 name,
               })
                 .then(serverSpec => {
                   win.webContents.send('ipc', {
                     method: 'response',
-                    args: [id, null, serverSpec],
+                    args: [id, null],
                   });
                 })
                 .catch(err => {
                   win.webContents.send('ipc', {
                     method: 'response',
-                    args: [id, err.stack, null],
+                    args: [id, err.stack],
                   });
                 });
               break;
