@@ -1,5 +1,6 @@
 const events = require('events');
 const {EventEmitter} = events;
+const stream = require('stream');
 const path = require('path');
 const fs = require('fs');
 
@@ -137,6 +138,51 @@ window.native = {
     responses[id] = result;
     return result;
   },
+  createLogStream({name}) {
+    const id = _makeId();
+
+    ipcRenderer.send('ipc', {
+      method: 'createLogStream',
+      args: [id, name],
+    });
+
+    const s = new stream.PassThrough();
+    let live = true;
+
+    const result = _makePromise();
+    result.then(() => {
+      if (live) {
+        live = false;
+
+        s.end();
+      }
+    })
+    .catch(err => {
+      if (live) {
+        live = false;
+
+        s.emit('err');
+      }
+    });
+    result.ondata = d => {
+      if (live) {
+        s.write(d);
+      }
+    };
+    s.close = () => {
+      if (live) {
+        live = false;
+
+        ipcRenderer.send('ipc', {
+          method: 'closeLogStream',
+          args: [id],
+        });
+      }
+    }
+    responses[id] = result;
+
+    return s;
+  },
 };
 ipcRenderer.on('ipc', (event, e) => {
   const {method} = e;
@@ -150,6 +196,10 @@ ipcRenderer.on('ipc', (event, e) => {
       response.reject(err);
     }
     responses[id] = null; // XXX can be delete
+  } else if (method === 'data') {
+    const {args: [id, data]} = e;
+    const response = responses[id];
+    response.ondata(new Buffer(data, 'base64'));
   } /* else {
     console.warn('ipc got unknown method: ' + JSON.stringify(method));
   } */

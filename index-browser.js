@@ -63,6 +63,7 @@ if (command === null) {
       .then(() => {
         let oldX = 0;
         let oldY = 0;
+        const logStreams = {};
         ipcMain.on('ipc', (event, e) => {
           const {method} = e;
           switch (method) {
@@ -185,6 +186,85 @@ if (command === null) {
                     args: [id, err.stack, null],
                   });
                 });
+              break;
+            }
+            case 'startServer': {
+              const {args: [id, name]} = e;
+
+              serverLib.startServer({
+                name,
+              })
+                .then(serverSpec => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, null],
+                  });
+                })
+                .catch(err => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, err.stack],
+                  });
+                });
+              break;
+            }
+            case 'stopServer': {
+              const {args: [id, name]} = e;
+
+              serverLib.stopServer({
+                name,
+              })
+                .then(serverSpec => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, null],
+                  });
+                })
+                .catch(err => {
+                  win.webContents.send('ipc', {
+                    method: 'response',
+                    args: [id, err.stack],
+                  });
+                });
+              break;
+            }
+            case 'createLogStream': {
+              const {args: [id, name]} = e;
+
+              const s = serverLib.createLogStream({
+                name,
+              });
+              s.setEncoding('base64');
+              s.on('data', data => {
+                win.webContents.send('ipc', {
+                  method: 'data',
+                  args: [id, data],
+                });
+              });
+              s.on('end', data => {
+                win.webContents.send('ipc', {
+                  method: 'response',
+                  args: [id, null],
+                });
+
+                logStreams[id] = null; // XXX can be delete
+              });
+              s.on('error', err => {
+                win.webContents.send('ipc', {
+                  method: 'response',
+                  args: [id, err.stack],
+                });
+
+                logStreams[id] = null; // XXX can be delete
+              });
+              logStreams[id] = s;
+              break;
+            }
+            case 'closeLogStream': {
+              const {args: [id]} = e;
+
+              logStreams[id].destroy();
+              logStreams[id] = null; // XXX can be delete
               break;
             }
             default: {
