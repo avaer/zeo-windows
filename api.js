@@ -190,16 +190,20 @@ ipcRenderer.on('ipc', (event, e) => {
   if (method === 'response') {
     const {args: [id, err, result]} = e;
     const response = responses[id];
-    if (!err) {
-      response.accept(result);
-    } else {
-      response.reject(err);
+    if (response) {
+      if (!err) {
+        response.accept(result);
+      } else {
+        response.reject(err);
+      }
+      responses[id] = null; // XXX can be delete
     }
-    responses[id] = null; // XXX can be delete
   } else if (method === 'data') {
     const {args: [id, data]} = e;
     const response = responses[id];
-    response.ondata(new Buffer(data, 'base64'));
+    if (response) {
+      response.ondata(new Buffer(data, 'base64'));
+    }
   } /* else {
     console.warn('ipc got unknown method: ' + JSON.stringify(method));
   } */
