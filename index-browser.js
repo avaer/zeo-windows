@@ -154,7 +154,7 @@ if (command === null) {
               serverLib.removeLocalServer({
                 name,
               })
-                .then(serverSpec => {
+                .then(() => {
                   win.webContents.send('ipc', {
                     method: 'response',
                     args: [id, null],
