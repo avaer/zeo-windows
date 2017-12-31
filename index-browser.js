@@ -98,6 +98,26 @@ if (command === null) {
               win.close();
               break;
             }
+            case 'back': {
+              if (win.webContents.canGoBack()) {
+                win.webContents.goBack();
+              }
+              break;
+            }
+            case 'forward': {
+              if (win.webContents.canGoForward()) {
+                win.webContents.goForward();
+              }
+              break;
+            }
+            case 'stop': {
+              win.webContents.stop();
+              break;
+            }
+            case 'refresh': {
+              win.webContents.reloadIgnoringCache();
+              break;
+            }
             case 'show': {
               win.show();
               break;
@@ -311,9 +331,9 @@ if (command === null) {
         });
         win.on('app-command', (e, cmd) => {
           if (cmd === 'browser-backward' && win.webContents.canGoBack()) {
-            win.webContents.goBack()
+            win.webContents.goBack();
           } else if (cmd === 'browser-forward' && win.webContents.canGoForward()) {
-            win.webContents.goForward()
+            win.webContents.goForward();
           }
         });
         win.webContents.on('new-window', (e, url) => {
@@ -356,6 +376,16 @@ if (command === null) {
         /* win.webContents.on('did-fail-load', () => {
           process.exit(1);
         }); */
+        win.webContents.on('did-start-loading', () => {
+          win.webContents.send('ipc', {
+            method: 'loadstart',
+          });
+        });
+        win.webContents.on('did-stop-loading', () => {
+          win.webContents.send('ipc', {
+            method: 'loadstop',
+          });
+        });
         win.webContents.on('crashed', () => {
           process.exit(0);
         });
