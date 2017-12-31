@@ -285,6 +285,7 @@ if (command === null) {
           // show: false,
           icon: path.join(__dirname, 'icon.png'),
           frame: false,
+          title: 'ZEO',
           titleBarStyle: 'hidden',
           autoHideMenuBar: true,
           // thickFrame: false,
@@ -303,6 +304,9 @@ if (command === null) {
         }); */
         win.loadURL(url);
         // win.webContents.setDevToolsWebContents(devtools.webContents);
+        win.on('page-title-updated', e => {
+          e.preventDefault();
+        });
         win.on('app-command', (e, cmd) => {
           if (cmd === 'browser-backward' && win.webContents.canGoBack()) {
             win.webContents.goBack();
@@ -319,6 +323,7 @@ if (command === null) {
             // show: false,
             icon: path.join(__dirname, 'icon.png'),
             // frame: false,
+            title: url + ' - ZEO server',
             // titleBarStyle: 'hidden',
             autoHideMenuBar: true,
             // thickFrame: false,
@@ -350,6 +355,9 @@ if (command === null) {
         /* win.webContents.on('did-fail-load', () => {
           process.exit(1);
         }); */
+        win.on('page-title-updated', e => {
+          e.preventDefault();
+        });
         win.webContents.on('did-start-loading', () => {
           win.webContents.send('ipc', {
             method: 'loadstart',
