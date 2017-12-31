@@ -287,7 +287,7 @@ if (command === null) {
           // backgroundThrottling: false,
           // darkTheme: true,
           webPreferences: {
-            preload: path.join(__dirname, 'api.js'),
+            preload: path.join(__dirname, 'lib', 'api.js'),
             zoomFactor,
             // webSecurity: false,
           },
@@ -331,7 +331,7 @@ if (command === null) {
             backgroundThrottling: false,
             // darkTheme: true,
             webPreferences: {
-              // preload: path.join(__dirname, 'api.js'),
+              // preload: path.join(__dirname, 'lib', 'api.js'),
               zoomFactor,
               // webSecurity: false,
             },
