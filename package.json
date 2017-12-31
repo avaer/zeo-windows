@@ -1,7 +1,7 @@
 {
-  "name": "node-webvr",
-  "version": "0.0.53",
-  "description": "WebVR bindings for native node",
+  "name": "zeo-windows",
+  "version": "0.0.1",
+  "description": "Zeo VR management console",
   "main": "index-browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
