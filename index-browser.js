@@ -134,6 +134,19 @@ if (command === null) {
               event.sender.emit('contextmenu');
               break;
             }
+            case 'requestHistoryState': {
+              const {args: [id]} = e;
+
+              const historyState = {
+                canGoBack: event.sender.canGoBack(),
+                canGoForward: event.sender.canGoForward(),
+              };
+              win.webContents.send('ipc', {
+                method: 'response',
+                args: [id, null, historyState],
+              });
+              break;
+            }
             case 'requestLocalServers': {
               const {args: [id]} = e;
 
