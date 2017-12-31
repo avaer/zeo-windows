@@ -14,23 +14,14 @@ namespace Zeo_VR
         {
             Process cmd = new Process();
 
-            cmd.StartInfo.FileName = "node\\node.exe";
-            cmd.StartInfo.Arguments = "index.js server connect";
-            cmd.StartInfo.RedirectStandardInput = true;
-            cmd.StartInfo.RedirectStandardOutput = true;
-            cmd.StartInfo.RedirectStandardError = true;
+            String rootDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", ".."));
+            cmd.StartInfo.FileName = Path.Combine(rootDirectory, "node_modules", "electron", "dist", "electron.exe");
+            Console.WriteLine(cmd.StartInfo.FileName);
+            cmd.StartInfo.Arguments = rootDirectory + " " + "url=https://my.zeovr.io/";
             cmd.StartInfo.CreateNoWindow = false;
             cmd.StartInfo.UseShellExecute = false;
-            cmd.OutputDataReceived += (sender, args2) => Console.WriteLine(args2.Data);
-            cmd.ErrorDataReceived += (sender, args2) => Console.WriteLine(args2.Data);
-
-            StreamWriter writer = new StreamWriter("log.txt", true);
-            cmd.OutputDataReceived += (sender, args2) => writer.WriteLine(args2.Data);
-            cmd.ErrorDataReceived += (sender, args2) => writer.WriteLine(args2.Data);
 
             cmd.Start();
-            cmd.BeginOutputReadLine();
-            cmd.BeginErrorReadLine();
             cmd.WaitForExit();
 
             if (cmd.ExitCode != 0) {
