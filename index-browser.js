@@ -106,8 +106,8 @@ if (command === null) {
               win.hide();
               break;
             }
-            case 'quit': {
-              process.exit(0);
+            case 'subclose': {
+              event.sender.emit('subclose');
               break;
             }
             case 'requestLocalServers': {
@@ -344,8 +344,8 @@ if (command === null) {
           subwin.webContents.on('did-fail-load', () => {
             console.warn('subwin failed load', {url});
           });
-          subwin.webContents.on('crashed', () => {
-            console.warn('subwin crashed', {url});
+          subwin.webContents.on('subclose', () => {
+            subwin.close();
           });
 
           e.newGuest = subwin;
