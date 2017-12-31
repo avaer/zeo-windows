@@ -61,43 +61,10 @@ if (command === null) {
 
     _requestAppReady()
       .then(() => {
-        let oldX = 0;
-        let oldY = 0;
         const logStreams = {};
         ipcMain.on('ipc', (event, e) => {
           const {method} = e;
           switch (method) {
-            case 'startMove': {
-              const position = win.getPosition();
-              oldX = position[0];
-              oldY = position[1];
-              break;
-            }
-            case 'move': {
-              const {args: [dx, dy]} = e;
-              win.setPosition(oldX + dx, oldY + dy);
-              break;
-            }
-            case 'minimize': {
-              win.minimize();
-              break;
-            }
-            case 'maximize': {
-              win.maximize();
-              break;
-            }
-            case 'unmaximize': {
-              win.unmaximize();
-              break;
-            }
-            case 'restore': {
-              win.restore();
-              break;
-            }
-            case 'close': {
-              win.close();
-              break;
-            }
             case 'back': {
               if (win.webContents.canGoBack()) {
                 win.webContents.goBack();
@@ -336,16 +303,6 @@ if (command === null) {
         }); */
         win.loadURL(url);
         // win.webContents.setDevToolsWebContents(devtools.webContents);
-        win.on('maximize', () => {
-          win.webContents.send('ipc', {
-            method: 'maximize',
-          });
-        });
-        win.on('unmaximize', () => {
-          win.webContents.send('ipc', {
-            method: 'unmaximize',
-          });
-        });
         win.on('app-command', (e, cmd) => {
           if (cmd === 'browser-backward' && win.webContents.canGoBack()) {
             win.webContents.goBack();
