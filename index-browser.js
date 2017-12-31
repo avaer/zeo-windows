@@ -8,7 +8,7 @@ const touch = require('touch');
 const tar = require('tar');
 const spog = require('spog');
 const electron = require('electron');
-const {app, ipcMain, BrowserWindow} = electron;
+const {app, ipcMain, remote, BrowserWindow, Menu, MenuItem} = electron;
 
 const log = (() => {
   for (let i = 2; i < process.argv.length; i++) {
@@ -128,6 +128,10 @@ if (command === null) {
             }
             case 'subclose': {
               event.sender.emit('subclose');
+              break;
+            }
+            case 'contextmenu': {
+              event.sender.emit('contextmenu');
               break;
             }
             case 'requestLocalServers': {
@@ -385,6 +389,36 @@ if (command === null) {
           win.webContents.send('ipc', {
             method: 'loadstop',
           });
+        });
+        win.webContents.on('contextmenu', () => {
+          const menu = new Menu();
+          menu.append(new MenuItem({label: 'Cut', click() {
+            win.webContents.send('ipc', {
+              method: 'cut',
+            });
+          }}));
+          menu.append(new MenuItem({label: 'Copy', click() {
+            win.webContents.send('ipc', {
+              method: 'copy',
+            });
+          }}));
+          menu.append(new MenuItem({label: 'Paste', click() {
+            win.webContents.send('ipc', {
+              method: 'paste',
+            });
+          }}));
+          menu.append(new MenuItem({type: 'separator'}));
+          menu.append(new MenuItem({label: 'Undo', click() {
+            win.webContents.send('ipc', {
+              method: 'undo',
+            });
+          }}));
+          menu.append(new MenuItem({label: 'Redo', click() {
+            win.webContents.send('ipc', {
+              method: 'redo',
+            });
+          }}));
+          menu.popup(win);
         });
         win.webContents.on('crashed', () => {
           process.exit(0);
