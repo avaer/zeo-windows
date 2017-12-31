@@ -284,7 +284,7 @@ if (command === null) {
           titleBarStyle: 'hidden',
           autoHideMenuBar: true,
           // thickFrame: false,
-          backgroundThrottling: false,
+          // backgroundThrottling: false,
           // darkTheme: true,
           webPreferences: {
             preload: path.join(__dirname, 'api.js'),
@@ -316,19 +316,52 @@ if (command === null) {
             win.webContents.goForward()
           }
         });
+        win.webContents.on('new-window', (e, url) => {
+          e.preventDefault();
+
+          const subwin = new BrowserWindow({
+            width: 1280 * zoomFactor,
+            height: 1024 * zoomFactor,
+            // show: false,
+            icon: path.join(__dirname, 'icon.png'),
+            // frame: false,
+            // titleBarStyle: 'hidden',
+            autoHideMenuBar: true,
+            // thickFrame: false,
+            backgroundThrottling: false,
+            // darkTheme: true,
+            webPreferences: {
+              // preload: path.join(__dirname, 'api.js'),
+              zoomFactor,
+              // webSecurity: false,
+            },
+          });
+          subwin.loadURL(url);
+          subwin.webContents.openDevTools({
+            mode: 'bottom',
+          });
+
+          subwin.webContents.on('did-fail-load', () => {
+            console.warn('subwin failed load', {url});
+          });
+          subwin.webContents.on('crashed', () => {
+            console.warn('subwin crashed', {url});
+          });
+
+          e.newGuest = subwin;
+        });
         win.webContents.openDevTools({
           mode: 'bottom',
-          // mode: 'detach',
         });
-        /*win.webContents.on('did-fail-load', () => {
+        /* win.webContents.on('did-fail-load', () => {
           process.exit(1);
-        });*/
+        }); */
         win.webContents.on('crashed', () => {
           process.exit(0);
         });
-        win.webContents.on('devtools-closed', () => {
+        /* win.webContents.on('devtools-closed', () => {
           process.exit(0);
-        });
+        }); */
       })
       .catch(err => {
         console.warn(err.stack);
