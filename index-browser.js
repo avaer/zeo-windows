@@ -284,7 +284,7 @@ if (command === null) {
           height: 1024 * zoomFactor,
           // show: false,
           icon: path.join(__dirname, 'icon.png'),
-          frame: false,
+          // frame: false,
           title: 'ZEO',
           titleBarStyle: 'hidden',
           autoHideMenuBar: true,
